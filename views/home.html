@@ -32,7 +32,7 @@
     <script>
       const props = ["name", "temp", "sunrise", "sunset"];
 
-      let cities = ["London", "Aveiro", "Porto"];
+      let cities = ["London", "Aveiro", "Porto", "Lisboa"];
 
       let data;
 
@@ -52,9 +52,9 @@
 
       function loadData() {
         axios
-          .get("/cities/London")
+          .get("/cities/" + cities.join())
           .then(function (response) {
-            data = [response.data];
+            data = response.data;
             loadTable();
           })
           .catch(function (error) {
