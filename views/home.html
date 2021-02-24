@@ -9,6 +9,7 @@
     <title>Cities temperature</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <script src="/js/axios.min.js"></script>
   </head>
   <body>
     <div class="container mt-5">
@@ -20,8 +21,8 @@
             <th scope="col">#</th>
             <th scope="col">Name</th>
             <th scope="col">Temperature</th>
-            <th scope="col">Day</th>
-            <th scope="col">Night</th>
+            <th scope="col">Sunrise</th>
+            <th scope="col">Sunset</th>
           </tr>
         </thead>
         <tbody id="table_body"></tbody>
@@ -29,30 +30,13 @@
     </div>
 
     <script>
-      let data = [
-        {
-          name: "London",
-          temp: 12,
-          day: 4,
-          night: 7,
-        },
-        {
-          name: "Aveiro",
-          temp: 16,
-          day: 2,
-          night: 4,
-        },
-        {
-          name: "Porto",
-          temp: 22,
-          day: 5,
-          night: 18,
-        },
-      ];
+      const props = ["name", "temp", "sunrise", "sunset"];
 
-      const props = ["name", "temp", "day", "night"];
+      let cities = ["London", "Aveiro", "Porto"];
 
-      function loadTableData() {
+      let data;
+
+      function loadTable() {
         const table = document.getElementById("table_body");
         data.forEach((item, index) => {
           let row = table.insertRow();
@@ -66,7 +50,19 @@
         });
       }
 
-      loadTableData();
+      function loadData() {
+        axios
+          .get("/cities/London")
+          .then(function (response) {
+            data = [response.data];
+            loadTable();
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+
+      loadData();
     </script>
   </body>
 </html>
