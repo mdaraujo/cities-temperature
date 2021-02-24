@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Cities temperature</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1>Cities temperature</h1>
+
+      <table class="table mt-4">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Temperature</th>
+            <th scope="col">Day</th>
+            <th scope="col">Night</th>
+          </tr>
+        </thead>
+        <tbody id="table_body"></tbody>
+      </table>
+    </div>
+
+    <script>
+      let data = [
+        {
+          name: "London",
+          temp: 12,
+          day: 4,
+          night: 7,
+        },
+        {
+          name: "Aveiro",
+          temp: 16,
+          day: 2,
+          night: 4,
+        },
+        {
+          name: "Porto",
+          temp: 22,
+          day: 5,
+          night: 18,
+        },
+      ];
+
+      const props = ["name", "temp", "day", "night"];
+
+      function loadTableData() {
+        const table = document.getElementById("table_body");
+        data.forEach((item, index) => {
+          let row = table.insertRow();
+          let count = row.insertCell(0);
+          count.innerHTML = index + 1;
+
+          props.forEach((prop_name, prop_i) => {
+            let cell = row.insertCell(prop_i + 1);
+            cell.innerHTML = item[prop_name];
+          });
+        });
+      }
+
+      loadTableData();
+    </script>
+  </body>
+</html>
