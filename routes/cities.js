@@ -28,9 +28,19 @@ router.get('/:cities', async (req, res) => {
 
     let info = [];
 
-    let allData = await Promise.all(calls);
+    let allResults = await Promise.allSettled(calls);
 
-    for (const { data } of allData) {
+    for (const result of allResults) {
+
+        if (result.status === "rejected") {
+            info.push({
+                name: result.reason.config.params.q
+            });
+            continue;
+        }
+
+        const { data } = result.value;
+
         info.push({
             name: data.name,
             temp: data.main.temp,

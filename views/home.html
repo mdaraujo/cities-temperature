@@ -9,11 +9,39 @@
     <title>Cities temperature</title>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+
     <script src="/js/axios.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
   </head>
   <body>
     <div class="container mt-5">
       <h1>Cities temperature</h1>
+
+      <div
+        class="alert alert-danger collapse mt-4"
+        role="alert"
+        id="alert"
+      ></div>
+
+      <div class="input-group mt-4">
+        <div class="input-group-append">
+          <button
+            class="btn btn-outline-primary"
+            type="button"
+            onclick="addCity()"
+          >
+            Add city
+          </button>
+        </div>
+
+        <input
+          type="text"
+          class="form-control"
+          placeholder="City name"
+          id="newCity"
+        />
+      </div>
 
       <table class="table mt-4">
         <thead>
@@ -25,19 +53,26 @@
             <th scope="col">Sunset</th>
           </tr>
         </thead>
-        <tbody id="table_body"></tbody>
+        <tbody id="tableBody"></tbody>
       </table>
     </div>
 
     <script>
       const props = ["name", "temp", "sunrise", "sunset"];
 
-      let cities = ["London", "Aveiro", "Porto", "Lisboa"];
+      let cities = new Set(["London", "Aveiro", "Porto", "Lisboa"]);
 
-      let data;
+      let data = [];
+
+      function addCity() {
+        const newCity = $("#newCity").val();
+        cities.add(newCity);
+        loadData();
+      }
 
       function loadTable() {
-        const table = document.getElementById("table_body");
+        const table = $("#tableBody")[0];
+        table.innerHTML = "";
         data.forEach((item, index) => {
           let row = table.insertRow();
           let count = row.insertCell(0);
@@ -51,10 +86,25 @@
       }
 
       function loadData() {
+        $("#alert").hide();
+
         axios
-          .get("/cities/" + cities.join())
+          .get("/cities/" + Array.from(cities).join())
           .then(function (response) {
-            data = response.data;
+            data.length = 0;
+            cities = new Set();
+            for (const city of response.data) {
+              if (city.temp) {
+                data.push(city);
+                cities.add(city.name);
+              } else {
+                $("#alert").html(
+                  "City name <b>" + city.name + "</b> is not valid."
+                );
+                $("#alert").show();
+              }
+            }
+            console.log(cities);
             loadTable();
           })
           .catch(function (error) {
