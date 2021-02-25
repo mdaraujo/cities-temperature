@@ -1,6 +1,7 @@
-const winston = require('winston');
 const express = require('express');
 const router = express.Router();
+const winston = require('winston');
+const config = require('config');
 const axios = require('axios');
 const moment = require('moment');
 
@@ -17,7 +18,7 @@ router.get('/:cities', async (req, res) => {
     for (const city of cities) {
         const call = axios.get('http://api.openweathermap.org/data/2.5/weather', {
             params: {
-                appid: '9de243494c0b295cca9337e1e96b00e2',
+                appid: config.get('appid'),
                 q: city,
                 units: 'metric',
             }
