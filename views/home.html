@@ -60,7 +60,7 @@
     <script>
       const props = ["name", "temp", "sunrise", "sunset"];
 
-      let cities = new Set(["London", "Aveiro", "Porto", "Lisboa"]);
+      let cities = new Set(["Porto", "Aveiro", "Lisboa"]);
 
       let data = [];
 
@@ -104,7 +104,6 @@
                 $("#alert").show();
               }
             }
-            console.log(cities);
             loadTable();
           })
           .catch(function (error) {

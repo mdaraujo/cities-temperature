@@ -5,52 +5,70 @@ const config = require('config');
 const axios = require('axios');
 const moment = require('moment');
 
+let cache = new Map();
+
 router.get('/:cities', async (req, res) => {
 
-    winston.info("GET/cities/" + req.params.cities);
+    winston.info("GET   /cities/" + req.params.cities);
 
-    const cities = req.params.cities.split(',')
+    const citiesNames = new Set(req.params.cities.split(',')
         .map(city => city.trim())
-        .filter(Boolean);
+        .filter(Boolean));
 
-    let calls = [];
+    let citiesInfo = new Map();
+    let externalCalls = [];
 
-    for (const city of cities) {
+    for (const cityName of citiesNames) {
+        if (cache.has(cityName)) {
+            const cacheCity = cache.get(cityName);
+            if (moment(cacheCity.cacheMoment).isAfter(moment().subtract(config.get('cacheMinutes'), 'minutes'))) {
+                let city = { ...cacheCity };
+                delete city.cacheMoment;
+                citiesInfo.set(cityName, city);
+                continue;
+            }
+        }
+
         const call = axios.get('http://api.openweathermap.org/data/2.5/weather', {
             params: {
                 appid: config.get('appid'),
-                q: city,
+                q: cityName,
                 units: 'metric',
             }
         });
-        calls.push(call);
+        externalCalls.push(call);
     }
 
-    let info = [];
-
-    let allResults = await Promise.allSettled(calls);
+    let allResults = await Promise.allSettled(externalCalls);
 
     for (const result of allResults) {
 
         if (result.status === "rejected") {
-            info.push({
-                name: result.reason.config.params.q
+            const cityName = result.reason.config.params.q;
+            citiesInfo.set(cityName, {
+                name: cityName
             });
             continue;
         }
 
         const { data } = result.value;
 
-        info.push({
+        const city = {
             name: data.name,
             temp: data.main.temp,
             sunrise: moment.unix(data.sys.sunrise).format("HH:mm"),
             sunset: moment.unix(data.sys.sunset).format("HH:mm"),
             country: data.sys.country,
-        });
+        }
+
+        citiesInfo.set(city.name, city);
+
+        const cityCache = { ...city, cacheMoment: moment.now() };
+
+        cache.set(city.name, cityCache);
     }
 
-    res.send(info);
+    res.send(Array.from(citiesInfo.values()));
 });
 
 module.exports = router;
