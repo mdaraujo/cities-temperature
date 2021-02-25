@@ -10,6 +10,12 @@
 
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
 
+    <style>
+      th {
+        cursor: pointer;
+      }
+    </style>
+
     <script src="/js/axios.min.js"></script>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
@@ -46,10 +52,9 @@
 
       <canvas id="barChart" class="mt-4"></canvas>
 
-      <table class="table mt-4">
+      <table class="table mt-4" id="citiesTable">
         <thead>
           <tr>
-            <th scope="col">#</th>
             <th scope="col">Name</th>
             <th scope="col">Temperature &#8451;</th>
             <th scope="col">Sunrise</th>
@@ -61,9 +66,12 @@
     </div>
 
     <script>
-      const props = ["name", "temp", "sunrise", "sunset"];
+      const columnsName = ["name", "temp", "sunrise", "sunset"];
+      let sortColIndex = 0;
+      let ascending = true;
 
       let citiesNames = new Set(["Porto", "Aveiro", "Lisboa"]);
+      let citiesData = [];
 
       let barChartData = {
         labels: [],
@@ -78,30 +86,44 @@
         ],
       };
 
-      let citiesData = [];
-
       function addCity() {
         const newCity = $("#newCity").val();
         citiesNames.add(newCity);
-        loadData();
-      }
-
-      function loadTable() {
-        const table = $("#tableBody")[0];
-        table.innerHTML = "";
-        citiesData.forEach((item, index) => {
-          let row = table.insertRow();
-          let count = row.insertCell(0);
-          count.innerHTML = index + 1;
-
-          props.forEach((prop_name, prop_i) => {
-            let cell = row.insertCell(prop_i + 1);
-            cell.innerHTML = item[prop_name];
-          });
-        });
+        requestData();
       }
 
       function loadData() {
+        // Reset
+        const table = $("#tableBody")[0];
+        table.innerHTML = "";
+
+        barChartData.labels.length = 0;
+        barChartData.datasets[0].data.length = 0;
+
+        // Sort
+        citiesData.sort((a, b) =>
+          a[columnsName[sortColIndex]] > b[columnsName[sortColIndex]] ? 1 : -1
+        );
+
+        if (!ascending) citiesData.reverse();
+
+        // Load
+        citiesData.forEach((city, index) => {
+          barChartData.labels.push(city.name);
+          barChartData.datasets[0].data.push(city.temp);
+
+          let row = table.insertRow();
+
+          columnsName.forEach((column, columnIndex) => {
+            let cell = row.insertCell(columnIndex);
+            cell.innerHTML = city[column];
+          });
+        });
+
+        window.myBar.update();
+      }
+
+      function requestData() {
         $("#alert").hide();
 
         axios
@@ -109,17 +131,10 @@
           .then(function (response) {
             citiesData.length = 0;
             citiesNames = new Set();
-
-            barChartData.labels.length = 0;
-            barChartData.datasets[0].data.length = 0;
-
             for (const city of response.data) {
               if (city.valid) {
                 citiesData.push(city);
                 citiesNames.add(city.name);
-
-                barChartData.labels.push(city.name);
-                barChartData.datasets[0].data.push(city.temp);
               } else {
                 $("#alert").html(
                   "City name <b>" + city.name + "</b> is not valid."
@@ -127,8 +142,7 @@
                 $("#alert").show();
               }
             }
-            loadTable();
-            window.myBar.update();
+            loadData();
           })
           .catch(function (error) {
             console.log(error);
@@ -136,6 +150,7 @@
       }
 
       window.onload = function () {
+        // Create Bar Chart
         var ctx = $("#barChart")[0].getContext("2d");
         window.myBar = new Chart(ctx, {
           type: "bar",
@@ -157,7 +172,20 @@
           },
         });
 
-        loadData();
+        // Add click event on table headers to sort
+        const table = document.getElementById("citiesTable");
+        const headers = table.querySelectorAll("th");
+
+        [].forEach.call(headers, function (header, index) {
+          header.addEventListener("click", function () {
+            sortColIndex = index;
+            ascending = !ascending;
+            loadData();
+          });
+        });
+
+        // Request initial data
+        requestData();
       };
     </script>
   </body>
