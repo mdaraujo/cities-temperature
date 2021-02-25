@@ -151,7 +151,10 @@
 
       window.onload = function () {
         // Create Bar Chart
-        var ctx = $("#barChart")[0].getContext("2d");
+        const canvas = $("#barChart")[0];
+        canvas.width = $(window).width();
+        canvas.height = 600;
+        const ctx = canvas.getContext("2d");
         window.myBar = new Chart(ctx, {
           type: "bar",
           data: barChartData,
@@ -173,7 +176,7 @@
         });
 
         // Add click event on table headers to sort
-        const table = document.getElementById("citiesTable");
+        const table = $("#citiesTable")[0];
         const headers = table.querySelectorAll("th");
 
         [].forEach.call(headers, function (header, index) {
