@@ -1,10 +1,15 @@
+const winston = require('winston');
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
 router.get('/:cities', async (req, res) => {
 
-    const cities = req.params.cities.split(',');
+    winston.info("GET/cities/" + req.params.cities);
+
+    const cities = req.params.cities.split(',')
+        .map(city => city.trim())
+        .filter(Boolean);
 
     console.log(cities);
 
@@ -20,18 +25,19 @@ router.get('/:cities', async (req, res) => {
         calls.push(call);
     }
 
-    Promise.all(calls).then((info) => {
-        let data = [];
-        for (const city of info) {
-            data.push({
-                name: city.data.name,
-                temp: city.data.main.temp,
-                sunrise: city.data.sys.sunrise,
-                sunset: city.data.sys.sunset,
-            });
-        }
-        res.send(data);
-    });
+    let data = [];
+
+    let info = await Promise.all(calls);
+
+    for (const city of info) {
+        data.push({
+            name: city.data.name,
+            temp: city.data.main.temp,
+            sunrise: city.data.sys.sunrise,
+            sunset: city.data.sys.sunset,
+        });
+    }
+    res.send(data);
 
 });
 
