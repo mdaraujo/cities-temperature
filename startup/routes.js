@@ -10,6 +10,7 @@ module.exports = function (app) {
     app.use('/js', express.static(path.join(__dirname, '../node_modules/axios/dist')));
     app.use('/js', express.static(path.join(__dirname, '../node_modules/jquery/dist')));
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
+    app.use('/js', express.static(path.join(__dirname, '../node_modules/chart.js/dist/')));
 
     app.use(express.json());
     app.use('/', home);

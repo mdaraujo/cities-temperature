@@ -46,7 +46,8 @@ router.get('/:cities', async (req, res) => {
         if (result.status === "rejected") {
             const cityName = result.reason.config.params.q;
             citiesInfo.set(cityName, {
-                name: cityName
+                name: cityName,
+                valid: false
             });
             continue;
         }
@@ -59,6 +60,7 @@ router.get('/:cities', async (req, res) => {
             sunrise: moment.unix(data.sys.sunrise).format("HH:mm"),
             sunset: moment.unix(data.sys.sunset).format("HH:mm"),
             country: data.sys.country,
+            valid: true
         }
 
         citiesInfo.set(city.name, city);

@@ -13,16 +13,11 @@
     <script src="/js/axios.min.js"></script>
     <script src="/js/jquery.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/Chart.min.js"></script>
   </head>
   <body>
     <div class="container mt-5">
       <h1>Cities temperature</h1>
-
-      <div
-        class="alert alert-danger collapse mt-4"
-        role="alert"
-        id="alert"
-      ></div>
 
       <div class="input-group mt-4">
         <div class="input-group-append">
@@ -43,12 +38,20 @@
         />
       </div>
 
+      <div
+        class="alert alert-danger collapse mt-4"
+        role="alert"
+        id="alert"
+      ></div>
+
+      <canvas id="barChart" class="mt-4"></canvas>
+
       <table class="table mt-4">
         <thead>
           <tr>
             <th scope="col">#</th>
             <th scope="col">Name</th>
-            <th scope="col">Temperature</th>
+            <th scope="col">Temperature &#8451;</th>
             <th scope="col">Sunrise</th>
             <th scope="col">Sunset</th>
           </tr>
@@ -60,20 +63,33 @@
     <script>
       const props = ["name", "temp", "sunrise", "sunset"];
 
-      let cities = new Set(["Porto", "Aveiro", "Lisboa"]);
+      let citiesNames = new Set(["Porto", "Aveiro", "Lisboa"]);
 
-      let data = [];
+      let barChartData = {
+        labels: [],
+        datasets: [
+          {
+            label: "Temperature ℃",
+            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            borderColor: "rgb(255, 99, 132)",
+            borderWidth: 1,
+            data: [],
+          },
+        ],
+      };
+
+      let citiesData = [];
 
       function addCity() {
         const newCity = $("#newCity").val();
-        cities.add(newCity);
+        citiesNames.add(newCity);
         loadData();
       }
 
       function loadTable() {
         const table = $("#tableBody")[0];
         table.innerHTML = "";
-        data.forEach((item, index) => {
+        citiesData.forEach((item, index) => {
           let row = table.insertRow();
           let count = row.insertCell(0);
           count.innerHTML = index + 1;
@@ -89,14 +105,21 @@
         $("#alert").hide();
 
         axios
-          .get("/cities/" + Array.from(cities).join())
+          .get("/cities/" + Array.from(citiesNames).join())
           .then(function (response) {
-            data.length = 0;
-            cities = new Set();
+            citiesData.length = 0;
+            citiesNames = new Set();
+
+            barChartData.labels.length = 0;
+            barChartData.datasets[0].data.length = 0;
+
             for (const city of response.data) {
-              if (city.temp) {
-                data.push(city);
-                cities.add(city.name);
+              if (city.valid) {
+                citiesData.push(city);
+                citiesNames.add(city.name);
+
+                barChartData.labels.push(city.name);
+                barChartData.datasets[0].data.push(city.temp);
               } else {
                 $("#alert").html(
                   "City name <b>" + city.name + "</b> is not valid."
@@ -105,13 +128,37 @@
               }
             }
             loadTable();
+            window.myBar.update();
           })
           .catch(function (error) {
             console.log(error);
           });
       }
 
-      loadData();
+      window.onload = function () {
+        var ctx = $("#barChart")[0].getContext("2d");
+        window.myBar = new Chart(ctx, {
+          type: "bar",
+          data: barChartData,
+          options: {
+            responsive: true,
+            legend: {
+              position: "top",
+            },
+            scales: {
+              yAxes: [
+                {
+                  ticks: {
+                    suggestedMin: 0,
+                  },
+                },
+              ],
+            },
+          },
+        });
+
+        loadData();
+      };
     </script>
   </body>
 </html>
