@@ -1,13 +1,17 @@
 {
   "name": "cities-temperature",
   "version": "1.0.0",
-  "description": "",
+  "description": "Web app to display cities temperature.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdaraujo/cities-temperature.git"
+  },
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Miguel Araújo",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
@@ -16,5 +20,9 @@
     "express-async-errors": "^3.1.1",
     "moment": "^2.29.1",
     "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1"
   }
 }
