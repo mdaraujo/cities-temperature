@@ -49,6 +49,7 @@ router.get('/:cities', async (req, res) => {
                 name: cityName,
                 valid: false
             });
+            winston.debug("New rejected request for city: " + cityName);
             continue;
         }
 
@@ -68,6 +69,8 @@ router.get('/:cities', async (req, res) => {
         const cityCache = { ...city, cacheMoment: moment.now() };
 
         cache.set(city.name, cityCache);
+
+        winston.debug("New valid request for city: " + city.name);
     }
 
     res.send(Array.from(citiesInfo.values()));
