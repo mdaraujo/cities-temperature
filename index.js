@@ -4,6 +4,7 @@ const app = express();
 
 require('./startup/config')();
 require('./startup/logging')();
+require('./startup/prod')(app);
 require('./startup/routes')(app);
 
 const port = process.env.PORT || 3000;

@@ -2,7 +2,7 @@ const columnsName = ["name", "temp", "sunrise", "sunset"];
 let sortCol = "temp";
 let ascending = true;
 
-let citiesNames = new Set(["Porto", "Aveiro", "Lisboa"]);
+let citiesNames = new Set(["Porto", "Aveiro", "Lisbon"]);
 let citiesData = [];
 
 let barChartData = {
@@ -17,12 +17,6 @@ let barChartData = {
         },
     ],
 };
-
-function addCity() {
-    const newCity = $("#newCity").val();
-    citiesNames.add(newCity);
-    requestData();
-}
 
 function loadData() {
     // Reset
@@ -81,7 +75,7 @@ function requestData() {
         });
 }
 
-window.onload = function () {
+$(function () {
     // Create Bar Chart
     const canvas = $("#barChart")[0];
     canvas.width = $(window).width();
@@ -119,6 +113,13 @@ window.onload = function () {
         });
     });
 
+    // Add click event to addCityBtn
+    $("#addCityBtn").on("click", function () {
+        const newCity = $("#newCity").val();
+        citiesNames.add(newCity);
+        requestData();
+    });
+
     // Request initial data
     requestData();
-};
+});
