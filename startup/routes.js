@@ -6,6 +6,7 @@ const cities = require('../routes/cities');
 
 module.exports = function (app) {
 
+    app.use(express.static('public'))
     app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
     app.use('/js', express.static(path.join(__dirname, '../node_modules/axios/dist')));
     app.use('/js', express.static(path.join(__dirname, '../node_modules/jquery/dist')));
