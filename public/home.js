@@ -1,5 +1,5 @@
 const columnsName = ["name", "temp", "sunrise", "sunset"];
-let sortColIndex = 0;
+let sortCol = "temp";
 let ascending = true;
 
 let citiesNames = new Set(["Porto", "Aveiro", "Lisboa"]);
@@ -34,7 +34,7 @@ function loadData() {
 
     // Sort
     citiesData.sort((a, b) =>
-        a[columnsName[sortColIndex]] > b[columnsName[sortColIndex]] ? 1 : -1
+        a[sortCol] > b[sortCol] ? 1 : -1
     );
 
     if (!ascending) citiesData.reverse();
@@ -113,7 +113,7 @@ window.onload = function () {
 
     [].forEach.call(headers, function (header, index) {
         header.addEventListener("click", function () {
-            sortColIndex = index;
+            sortCol = columnsName[index];
             ascending = !ascending;
             loadData();
         });
